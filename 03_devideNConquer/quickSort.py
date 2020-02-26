@@ -1,6 +1,6 @@
 # quickSort.py
 # 5205. [파이썬 S/W 문제해결 구현] 4일차 - 퀵 정렬
-
+# 실패
 '''
 퀵 정렬을 구현해 N개의 정수를 정렬해 리스트 A에 넣고, A[N//2]에 저장된 값을 출력하는 프로그램을 만드시오.
 
@@ -46,11 +46,12 @@ def quickSort(nums):
 
 
 def partition(nums):
-    idx = random.randint(len(nums))      # pivot index
+    idx = random.randint(0,len(nums)-1)      # pivot index
     # devide to left, right group(smaller, bigger), 기준은 pivot
-    i=0; j=0
-    while(True):
-        
+    print(idx)
+    i=0; j=len(nums)-1
+    while(i<len(nums) and j>=0):
+        print(i, j, nums)
         while(nums[idx] >= nums[i] and i<len(nums)):
             i+=1
         while(nums[idx] <= nums[j] and j>=0):
@@ -66,4 +67,4 @@ def partition(nums):
 
     return nums
 
-main()
+print(partition([3,2,5,4,1]))
