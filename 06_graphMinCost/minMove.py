@@ -1,6 +1,8 @@
 # minMove.py
 # 5251. [파이썬 S/W 문제해결 구현] 7일차 - 최소 이동 거리
-# 방향 그래프
+# 방향 그래프: 방향이 잘못됐음, 출발지랑 도착지로 해야 함
+
+
 
 '''
 A도시에는 E개의 일방통행 도로 구간이 있으며, 각 구간이 만나는 연결지점에는 0부터 N번까지의 번호가 붙어있다.
@@ -53,21 +55,23 @@ A도시에는 E개의 일방통행 도로 구간이 있으며, 각 구간이 만
 '''
 
 '''sol
-방향 그래프이므로: 각 node 객체마다 자식 노드로 둘 수 있게 하기
-간선은 n개까지만 허용: cnt로
-크루스칼 알고리즘으로 해결하기
+다익스트라로 해결하기
+1. 먼저 노드들 방향 그래프로 받고
+2. 0번 노드부터 n번 노드까지 자식 노드 다 들르고 minDis랑 prevNode 배열에 업데이트해 주기
+    n번 노드에서 스탑
 '''
 
 class Node:
     def __init__(self, num):
         self.num = num
         self.link = {}
+        self.visit = False
 
     def addNode(self, node, weight):
-        self.link[node] = weight
-
-    def delNode(self, node):
-        del self.link[node]
+        if node in self.link.keys() and self.link[node] < weight:
+            return
+        elif node not in self.link.keys():
+            self.link[node] = weight
 
 
 def main():
@@ -77,65 +81,53 @@ def main():
         edgl = []
         for _ in range(E):
             edgl.append([int(i) for i in input().split()])
-        print("#%d %d"%(t+1, minMove(N, edgl)))
+        print("#%d %d"%(t+1, t))
 
 
-def minMove(N, edgl):
-    nodes = [Node(i) for i in range(N+1)]
-    heads = nodes[:]
-    edgl = sorted(edgl, key=lambda x: x[2])
-    tot = 0; cnt = 0
-    
-    for ed in edgl:
-        v1 = ed[0]; v2 = ed[1]; w = ed[2]
-        print(v1, v2, w)
-        if not linknCheck(v1, v2, w, nodes, heads):
-            # 사이클이 안 생기는 경우
-            tot += w
-            cnt += 1
-            print(cnt)
-        if cnt == N+1:
-            break
-        showHeads(heads)
-    return tot
+def makeGraph(N, edgl):
+    nodes = []
+    for n in range(N+1):
+        nodes.append(Node(n))
+
+    for e in edgl:
+        v1 = nodes[e[0]]; v2 = nodes[e[1]]
+        nodes[v1].addNode(v2, e[2])
+
+    return nodes
 
 
-def linknCheck(v1, v2, w, nodes, heads):
-    # 1. v1 -> v2 방향으로 추가 먼저 해주기
-    if heads[v2] != heads[v1]:
-        nodes[v1].addNode(nodes[v2], w)
-        tmp = heads[v2]
-        heads[v2] = heads[v1]
-        # 2. _checkCycle()로 사이클 생기는 지 확인하기
-        if _checkCycle(nodes[v1], nodes[v1]) == True:
-            # (1) 사이클 생기면 원래 상태로 복구 후 True return
-            nodes[v1].delNode(nodes[v2])
-            heads[v2] = tmp
-            return True
-        # (2) 사이클 안 생기면 False return
-        return False
-    
-    return True
+def dijkstra(N, edgl):
+    nodes = makeGraph(N, edgl)
+    minDis = [100000000]*len(nodes)
+    prevNod = [-1]*len(nodes)
+    # 각 차례로 인덱스번째 노드까지 오는데의 최소 거리, 인덱스번째 노드의 직전 노드
+    visited = []
+    while(len(visited)== N+1):
+        cur = min(minDis)
 
 
-def _checkCycle(stt, temp):
-    # return True if 사이클 생기면 else False
-    # 사이클이 생기거나 이미 연결되어 있는 노드의 경우
-    for node, _ in temp.link.items():
-        print("stt:", stt.num,"temp:", temp.num,"node:", node.num)
-        if node.num == stt.num:
-            # 사이클 확인
-            print("True1")
-            return True
-        elif _checkCycle(stt, node):
-            print("True2")
-            return True
-    return False
-            
+def _visitNds(cur, prevNod, minDis, N):
+    # node들을 들를 때 재귀로 들름
+    '''
+    * 종결조건: N번 노드 들를 때
+    * 방문 노드마다:
+        1. visit = True로,
+        2. minDis에 업데이트
+        3. prevNod에 업데이트
+    '''
+    if cur.visit == False:
 
-def showHeads(heads):
-    print("heads: ", end = " ")
-    for i in heads:
-        print(i.num, end = " ")
-    print(" ")
-main()
+        if cur.num == N:
+            # 종결조건
+            return
+
+        for nex, wei in cur.link.items():
+            if minDis[nex.num] > minDis[cur.num] + wei:
+                minDis[nex.num] = minDis[cur.num] + wei
+                prevNod[nex.num] = cur
+
+        cur.visit = True
+
+        # 노드 가중치 업데이트 이후에 각자 방문해 주기
+        for nex, wei in cur.link.items():
+            _visitNds(nex, prevNod, minDis, N)
