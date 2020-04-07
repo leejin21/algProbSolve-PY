@@ -24,18 +24,18 @@
 #3 1278
 
 '''
+tiles = [0]*5
+
 
 def saveTile(k):
     if k == 0 or k == 1:
         tiles[k] = 1
-        return 1
     elif k == 2:
         tiles[k] = 2
-        return 2
     elif tiles[k] != 0:
-        return tiles[k]
+        return
     else:
-        pass
+        saveTile()
 
 
 T = int(input())
