@@ -1,6 +1,6 @@
 # attachTile.py
 # 5255. [파이썬 S/W 문제해결 최적화] 2일차 - 타일 붙이기
-
+# 성공!
 '''
 다음과 같이 2x1, 2x2, 2x3 크기의 타일을 2xN 크기의 공간에 붙이려고 한다. N이 주어지면 붙이는 방법이 모두 몇 가지가 경우가 있는지 출력하는 프로그램을 만드시오.
 
@@ -24,22 +24,31 @@
 #3 1278
 
 '''
-tiles = [0]*5
+
+'''원리
+
+case 1. 처음 블록이 2*1 블록으로 시작하는 경우: 나머지 (n-1)개의 블록을 계산
+case 2. 처음 블록이 2*2 블록 1개짜리 또는 1*2 블록 2개짜리로 시작하는 경우: 나머지 (n-2)개의 블록 계산 후 곱하기 2
+case 3. 처음 블록이 2*3 블록으로 시작하는 경우: 나머지 (n-3)개의 블 계산
+
+따라서, case 1+case 2+ case 3 하면 2*n을 채울 경우의 수를 계산할 수 있음.
+'''
 
 
 def saveTile(k):
-    if k == 0 or k == 1:
-        tiles[k] = 1
-    elif k == 2:
-        tiles[k] = 2
-    elif tiles[k] != 0:
-        return
-    else:
-        saveTile()
+    # used memoization, return tiles[k]
+    tiles = [0]*(k+1)
+    # tiles[0] = 1이어야 tiles[3]부터 아래 식으로 구할 수 있기 때문.
+    tiles[0] = 1
+    tiles[1] = 1
+    tiles[2] = 3
+    for i in range(3, k+1):
+        tiles[i] = tiles[i-1] + 2*tiles[i-2] + tiles[i-3]
+
+    return tiles[k]
 
 
 T = int(input())
 for t in range(T):
-
-    tiles = [0]*n
-    print("#%d %d"%(t, t))
+    n = int(input())
+    print("#%d %d" % (t+1, saveTile(n)))
