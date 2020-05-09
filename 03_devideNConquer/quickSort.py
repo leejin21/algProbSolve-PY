@@ -27,44 +27,49 @@
 #2 6
 '''
 
-import random 
+# import random
 
-def main():
-    T = int(input())
-    for t in range(T):
-        _n = int(input)
-        nums = [int(n) for n in input().split()]
-        print("#%d %d"%(_n, quickSort(nums)[len(nums)//2]))
 
-def quickSort(nums):
-    # sort nums list and returns n//2 th value of the list
+def quickSort(nums, left, right):
     # recursive function
+    # 1. partition을 통해 pivot의 올바른 idx를 구하고, pivot의 왼쪽에 pivot보다 작은 원소들, 오른쪽에 pivot보다 큰 원소들을 배치해 준  nums를 구한다.
+    if left <= right:
+        pi = partition(nums, left, right)
+        # 2. nums의 left부터 pi-1, pi+1부터 right까지 다시 quickSort를 수행해서 재귀 수행.
+        quickSort(nums, left, pi-1)
+        quickSort(nums, pi+1, right)
 
-    pi, nums = partition(nums)
 
-    return nums
+def partition(nums, left, right):
+    # sort nums list and returns n//2 th value of the list
+    # end = random.randint(0, len(nums)-1)      # pivot index
 
-
-def partition(nums):
-    idx = random.randint(0,len(nums)-1)      # pivot index
-    # devide to left, right group(smaller, bigger), 기준은 pivot
-    print(idx)
-    i=0; j=len(nums)-1
-    while(i<len(nums) and j>=0):
-        print(i, j, nums)
-        while(nums[idx] >= nums[i] and i<len(nums)):
-            i+=1
-        while(nums[idx] <= nums[j] and j>=0):
-            j+=1
-
-        nums[i], nums[j] = nums[j], nums[i]
-
-        if j==i:
-            # i==idx or j==idx일 경우 piv까지 간 것이므로 끝.
-            nums[i], nums[idx] = nums[idx], nums[i]
+    # 1. idx 설정해 주기(끝 원소로)
+    end = right
+    # 2. devide to left, right group(smaller, bigger), 기준은 pivot
+    low = left
+    high = right
+    while(low <= high):
+        # print(low, high, nums[low:high+1])
+        while(nums[end] >= nums[low] and low < right):
+            low += 1
+        while(nums[end] <= nums[high] and high >= left):
+            high -= 1
+        # print(low, high)
+        if low > high:
             break
-    
+        nums[low], nums[high] = nums[high], nums[low]
 
-    return nums
+    # 3. 끝 원소랑 high+1번째 원소랑 swap
+    nums[end], nums[high+1] = nums[high+1], nums[end]
+    return high+1
 
-print(partition([3,2,5,4,1]))
+
+T = int(input())
+for t in range(T):
+    _n = int(input())
+    nums = [int(n) for n in input().split()]
+    quickSort(nums, 0, len(nums)-1)
+    print("#%d %d" % (t+1, nums[len(nums)//2]))
+
+
