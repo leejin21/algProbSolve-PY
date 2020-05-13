@@ -32,10 +32,49 @@
 
 
 '''sol
-1. 일단 순서대로 [0,0,0,0] 이면 연산을 거칠 때 
-=> 순서가 중요하지 않기 때문에, 우선적으로 그리디로 cnt 구하고,
-해당 cnt보다 커지는 경우 폐지를 해 버림
-2. 문제는 어떻게 돌릴까인데, 
-
-
+bfs 이용: 큐 이용
 '''
+
+
+
+
+from collections import deque
+def calculate():
+    global ans, t, res
+    while(que):
+        # 큐에 최초로 삽입된 것 순서대로 하기: 따지고 보면 BFS
+        can, cnt = que.popleft()
+        if can == ans:
+            # BFS이기 때문에 가장 빨리 can == ans일 때
+            res = cnt
+            return
+        for i in range(4):
+            # 케이스별로 can2 만들어주기
+            can2 = 0
+            if i == 0:
+                can2 = can + 1
+            elif i == 1:
+                can2 = can - 1
+            elif i == 2:
+                can2 = can * 2
+            elif i == 3:
+                can2 = can - 10
+            # 모든 케이스에 대해 큐에 삽입할/말 결정하기
+            if 0 < can2 <= 1000000 and tl[can2] != t:
+                que.append((can2, cnt+1))
+                tl[can2] = t
+
+                # tl의 can2 부분이 t번째 테스트케이스에서 이미 구한 값이라고 표시해두기(중복 제거)
+
+
+T = int(input())
+tl = [0]*1000001
+for t in range(1, T+1):
+    # FIXED: t가 0부터 시작하면 tl에서 초기화한 0이랑 혼동되므로 1부터 시작하게 함
+    N, ans = (int(i) for i in input().split())
+    que = deque()
+    que.append((N, 0))
+    tl[N] = t
+    res = 0
+    calculate()
+    print("#%d %d" % (t, res))
