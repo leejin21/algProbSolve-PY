@@ -1,7 +1,6 @@
 # partStr.py
 # 5254. [파이썬 S/W 문제해결 최적화] 1일차 - 부분 문자열
-# 제한시간 초과
-# 답지를 봐야 할 듯: 
+# 완료!!
 '''
 길이가 K인 문자열 S가 있을 때, S의 연속된 일부분을 부분 문자열이라고 한다.
 
@@ -34,28 +33,70 @@ a ab aba abac ac b ba bac c
 #1 a 2
 #2 j 2
 #3 j 4
+
 '''
 
-def findPart(n, word):
-    # 트라이 이용
-    # 1. 먼저 단어를 하나 받았을 때 해당 단어의 0번째, 1번째까지, ..
-    
-    for i in range(len(word)):
-        for j in range(i+1):
-            # 단어의 j번째부터 i번째까지 트라이에 저장
-            # print(j, i)
-            word[j:i+1]
-    # head.showchild()
+
+class Node:
+    # 트라이의 기본 단위
+    def __init__(self):
+        self.link = [None]*26
 
 
+def save2Trie(word):
+    # 1. word를 트라이에 저장: abac, bac, ac, c 이런 방식으로.
+    trie = Node()
+    i = 0
+    while(i < len(word)):
+        temp = trie
+        for j in range(i, len(word)):
+            idx = alp2idx(word[j])
+            if temp.link[idx] == None:
+                temp.link[idx] = Node()
+            temp = temp.link[idx]
+        i += 1
+    return trie
+
+# TODO: 2. 전역변수 => return문으로 바꾸기
+
+
+def dfs(temp, dep):
+    # 2. dfs 통해서 n번째 부분수열 찾기
+    global n, cnt, alp, g_dp, trie
+    for i in range(len(temp.link)):
+        if temp.link[i] != None and n < cnt:
+            # n번째 부분 문자열까지만 찾고 && 트라이 리스트에 채워져 있는 부분만.
+            if temp == trie:
+                # 첫 글자 alp에 저장해 두기
+                alp = idx2alp(i)
+            # 몇번째 부분 문자열인 지 정하기
+            n += 1
+            if n == cnt:
+                # n번째 부분 문자열일 때, dep 전역변수에 저장해 두기
+                g_dp = dep
+                return
+            else:
+                # n번째 부분 문자열까지만 재귀함수 돌리기
+                dfs(temp.link[i], dep+1)
+
+
+def alp2idx(alp):
+    return ord(alp) - 97
+
+
+def idx2alp(idx):
+    return chr(idx+97)
 
 
 T = int(input())
 for t in range(T):
-    cnt = 0
+    n = 0
+    g_dp = 0
+    alp = None
+    # alp, g_dp를 답으로 삼고 하기
     _input = input().split()
-    n = int(_input[0]); word = _input[1].strip()
-    # print(n, '"'+word+'"')
-    cha, dep = findPart(n, word)
-    print("#%d %s %d"%(t+1, cha, dep))
-
+    cnt = int(_input[0])
+    word = _input[1].strip()
+    trie = save2Trie(word)
+    dfs(trie, 1)
+    print("#%d %s %d" % (t+1, alp, g_dp))

@@ -1,6 +1,6 @@
 # minCost.py
 # 5250. [파이썬 S/W 문제해결 구현] 7일차 - 최소 비용
-
+# 완료
 '''
 출발에서 최종 도착지까지 경유하는 지역의 높이 차이에 따라 연료 소비량이 달라지기 때문에, 최적의 경로로 이동하면 최소한의 연료로 이동할 수 있다.
 
@@ -24,19 +24,29 @@
 
 1<=T<=50, 3<=N<=100, 0<=H<1000
 
-1
+
+3
 3
 0 2 1
 0 1 1
 1 1 1
+5
+0 0 0 0 0
+0 1 2 3 0
+0 2 3 4 0
+0 3 4 5 0
+0 0 0 0 0
+5
+0 1 1 1 0
+1 1 0 1 0
+0 1 0 1 0
+1 0 0 1 1
+1 1 1 1 1
 
 [출력]
 
 각 줄마다 "#T" (T는 테스트 케이스 번호)를 출력한 뒤, 답을 출력한다.
 
-
-https://hongsj36.github.io/2020/02/02/Ad_GraphMST/
-이거 보고 더 공부하고 분석해보기
 '''
 INF = 9000000
 
@@ -57,13 +67,15 @@ def dijkstra():
         cur = selectCur(unvisited, minCost)
         c_i, c_j = cur
         for i, j in nextNod(cur):
-            cand = minCost[c_i][c_j] + graph[i][j] - graph[c_i][c_j] + 1
+            # FIXED: graph[i][j]<= graph[c_i][c_j]의 경우를 생각: 만약 높이 차이가 음수일 경우, 비용은 0으로 취급.
+            diff = 0 if graph[i][j] <= graph[c_i][c_j] else graph[i][j] - \
+                graph[c_i][c_j]
+            cand = minCost[c_i][c_j] + diff + 1
             if visited[i][j] == False and minCost[i][j] > cand:
                 minCost[i][j] = cand
 
         unvisited.remove((c_i, c_j))
         visited[c_i][c_j] == True
-
 
     return minCost[len(graph)-1][len(graph)-1]
 
