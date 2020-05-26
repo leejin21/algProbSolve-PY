@@ -1,29 +1,26 @@
 # 위장
-# 실패: 재귀?
+# 성공
 from collections import Counter
+from functools import reduce
 
 
 def solution(clothes):
-    cl_d = Counter()
-    for c in clothes:
-        cl_d[c[1]] += 1
-    # 이제 cl_d를 기반으로 조합의 경우를 생각해보기.
-    print(cl_d)
-    i = 0
-    cl = [[key, cl_d[key]] for key in cl_d]
-    style = 0
-    while(i < len(cl)):
-        for k in range(len(cl)-i):
-            temp = cl[k][1]
-            for j in range(k, k+i+1):
-                temp *= cl[j][1]
-            style += temp
-        i += 1
-    return style
+    clothes = [i[1] for i in clothes]
+    kinds = [v for k,v in Counter(clothes).items()]
+    tot = 0
+    for i in range(len(kinds)-1, -1, -1):
+        tot += kinds[i]*(1+tot)
+    return tot
+
+
+def solution1(clothes):
+    cnt = Counter([kind for name, kind in clothes])
+    answer = reduce(lambda x, y: x*(y+1), cnt.values(), 1) - 1
+    return answer
+
+
 
 
 print(solution([['yellow_hat', 'headgear'], [
       'blue_sunglasses', 'eyewear'], ['green_turban', 'headgear']]))
-print(solution([['crow_mask', 'face'], ['blue_sunglasses', 'eye'], ['smoky_makeup', 'remover'], [
-      'haha', 'remover'], ['lenze', 'eye'], ['crow_mask2', 'face'], ['bla', 'bla2']]))
-# face:2, eye:2, remover:2, bla:1
+
